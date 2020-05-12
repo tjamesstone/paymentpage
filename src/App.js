@@ -41,7 +41,7 @@ export default class App extends Component {
           <h1>Congrats on signing with Grow!</h1>
           <h3>Grab your payment info and let's get started</h3>
           <p>Insights that will change your business are a just a few clicks away</p>
-          <img src={blackComputer} alt="BI Dashboard"/>
+          <img className="blackcomputer" src={blackComputer} alt="BI Dashboard"/>
         </div>
 
 
