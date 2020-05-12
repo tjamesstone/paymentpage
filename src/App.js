@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import './App.css';
 import { CountryDropdown, RegionDropdown } from 'react-country-region-selector';
-import '/blackcomputer.png'
+import blackComputer from './blackcomputer.png'
 
 
 export default class App extends Component {
@@ -41,7 +41,11 @@ export default class App extends Component {
           <h1>Congrats on signing with Grow!</h1>
           <h3>Grab your payment info and let's get started</h3>
           <p>Insights that will change your business are a just a few clicks away</p>
+          <img src={blackComputer} alt="BI Dashboard"/>
         </div>
+
+
+        
         <div className="form">
           <p className="label">TO GET STARTED ENTER YOUR BILLING INFORMATION BELOW</p>
           <div className="formcolumn">

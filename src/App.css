@@ -57,6 +57,12 @@
 
 }
 
+.blackcomputer{
+  max-height: 20vh;
+  height: auto;
+  max-width: 5rem;
+}
+
 input{
   padding: 0 auto;
   margin: 0 auto;
@@ -73,4 +79,14 @@ h1{
   letter-spacing: -1px;
   columns: auto;
   line-height: 2rem;
+}
+
+button {
+  background: #3898ec;
+  color: white;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  height: 2em;
+  width: 50%;
 }
