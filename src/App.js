@@ -16,10 +16,12 @@ export default class App extends Component {
     return (
       <div className="App">
         <div className="info">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Error veritatis quae vitae consequatur neque ullam quo consequuntur magnam, earum hic quos cum rem sed ducimus omnis adipisci facilis eaque nemo!
+          <h1>Congrats on signing with Grow! We need to grab a few more bits of information to get started.</h1>
+          <h3>Grab your payment info and let's get started</h3>
+          <p>Insights that will change your business are a just a few clicks away</p>
         </div>
         <div className="form">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Neque animi veniam omnis deleniti nihil ipsum mollitia obcaecati non ullam accusantium commodi nemo, libero asperiores, voluptates minima modi error, architecto enim.
+          <p className="label">TO GET STARTED ENTER YOUR BILLING INFORMATION BELOW</p>
         </div>
       </div>
     )

@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap');
+
 .App {
   text-align: center;
   display: flex;
@@ -8,12 +10,26 @@
   padding: 0;
   height: 100vh;
   width: 100vw;
+  font-family: 'Montserrat', sans-serif;
+  color: #333;
+  font-size: 16px;
+  line-height: 1.4em;
+  background: #66ffcc;
 }
 
 .info{
-  background: green;
+  width: 50vw;
 }
 
 .form{
-  background: pink;
+  width: 50vw;
+
+}
+
+.label{
+  color: #119988;
+}
+
+.formcolumn{
+  background:#f8f8f8;
 }
