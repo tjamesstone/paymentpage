@@ -1,26 +1,29 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, {Component} from 'react';
 import './App.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+
+export default class App extends Component {
+  //state
+  state = {
+
+  }
+
+  //functions
+
+
+
+  render(){
+    return (
+      <div className="App">
+        <div className="info">
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Error veritatis quae vitae consequatur neque ullam quo consequuntur magnam, earum hic quos cum rem sed ducimus omnis adipisci facilis eaque nemo!
+        </div>
+        <div className="form">
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Neque animi veniam omnis deleniti nihil ipsum mollitia obcaecati non ullam accusantium commodi nemo, libero asperiores, voluptates minima modi error, architecto enim.
+        </div>
+      </div>
+    )
+  }
 }
 
-export default App;
+//export default App;
