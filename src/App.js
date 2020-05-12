@@ -47,11 +47,11 @@ export default class App extends Component {
 }
 
 fetchOrdwayRedirectUrl = ordwayId => {
-  let proxyurl = "https://cors-anywhere.herokuapp.com/";
+  let proxyUrl = "https://cors-anywhere.herokuapp.com/";
   let url = 'https://app.ordwaylabs.com/api/v1/customers/' + this.state.ordwayId + '/verbose'
   let headers = {'X-User-Email': 'operations@grow.com', 'X-User-Token': 'CydMaaYo7FF61sLsswb1', 'X-User-Company':'Grow'}
   
-  axios.get(proxyurl + url, {headers}).then( res =>{
+  axios.get(proxyUrl + url, {headers}).then( res =>{
     console.log(res.data.pay_now_url)
     let ordwayPaymentLink = res.data.pay_now_url
     this.setState({paymentLink: ordwayPaymentLink})
@@ -60,6 +60,44 @@ fetchOrdwayRedirectUrl = ordwayId => {
   .catch(function(error){
     console.log(error)
   })
+}
+
+createBillingContactInOrdwayAndUpdateBillingAddress= () => {
+  console.log('button click is working')
+//make sure all fields are filled out
+
+
+//post billing contact info to ordway
+let proxyUrl = "https://cors-anywhere.herokuapp.com/";
+let url = 'https://app.ordwaylabs.com/api/v1/customers/' + this.state.ordwayId;
+let headers = {'X-User-Email': 'operations@grow.com', 'X-User-Token': 'CydMaaYo7FF61sLsswb1', 'X-User-Company':'Grow'}
+let body = {
+  "customer_id": this.state.ordwayId,
+  "first_name": this.state.firstName,
+  "last_name": this.state.lastName,
+  "email": this.state.email,
+  "address1": this.state.address,
+  "city": this.state.city,
+  "state": this.state.region,
+  "zip": this.state.postalCode,
+  "country": this.state.country
+}
+
+axios.post(proxyUrl+url, {headers}, body).then( res => {
+  console.log('Axios post hit')
+  console.log(res)
+})
+.catch(function(error){
+  console.log('axios post failed here is the errror:' + error)
+})
+
+//redirect to enter payment
+window.location = this.state.paymentLink
+
+}
+
+continueToPayment = () =>{
+  
 }
 
 
@@ -163,7 +201,9 @@ fetchOrdwayRedirectUrl = ordwayId => {
               /> 
             </div>
 
-            <button className="continuetopayment">Continue To Payment</button>
+            <button 
+            onClick={this.createBillingContactInOrdwayAndUpdateBillingAddress}
+            className="continuetopayment">Continue To Payment</button>
           </div>
         </div>
       </div>
