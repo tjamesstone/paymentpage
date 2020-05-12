@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import './App.css';
 import { CountryDropdown, RegionDropdown } from 'react-country-region-selector';
 import blackComputer from './blackcomputer.png'
+import axios from 'axios';
 
 
 export default class App extends Component {
@@ -17,12 +18,19 @@ export default class App extends Component {
       region: '',
       address: '',
       city: '',
-      postalCode: ''
+      postalCode: '',
+      sfdcAccountId: '',
+      ordwayId: 'C-00040',
+      paymentLink: ''
     };
   }
  
 
   //functions
+  componentDidMount(){
+    this.fetchOrdwayRedirectUrl();
+  }
+
   selectCountry (val) {
     this.setState({ country: val });
   }
@@ -30,6 +38,29 @@ export default class App extends Component {
   selectRegion (val) {
     this.setState({ region: val });
   }
+
+  handleChange(key, e){
+    this.setState({
+        [key]: e.target.value
+    })
+    console.log(this.state)
+}
+
+fetchOrdwayRedirectUrl = ordwayId => {
+  let proxyurl = "https://cors-anywhere.herokuapp.com/";
+  let url = 'https://app.ordwaylabs.com/api/v1/customers/' + this.state.ordwayId + '/verbose'
+  let headers = {'X-User-Email': 'operations@grow.com', 'X-User-Token': 'CydMaaYo7FF61sLsswb1', 'X-User-Company':'Grow'}
+  
+  axios.get(proxyurl + url, {headers}).then( res =>{
+    console.log(res.data.pay_now_url)
+    let ordwayPaymentLink = res.data.pay_now_url
+    this.setState({paymentLink: ordwayPaymentLink})
+    console.log(this.state)
+  })
+  .catch(function(error){
+    console.log(error)
+  })
+}
 
 
 
@@ -51,27 +82,45 @@ export default class App extends Component {
           <div className="formcolumn">
             <div className="input">
               <p>Company Name</p>
-              <input type="text"/>
+              <input 
+              type="text"
+              onChange={(e) => this.handleChange('companyName', e)}
+              value={this.state.companyName}
+              />
+              
             </div>
 
             <div className="input">
               <p>First Name</p>
-              <input type="text"/>
-            </div>
+              <input 
+              type="text"
+              onChange={(e) => this.handleChange('firstName', e)}
+              value={this.state.firstName}
+              />            
+              </div>
 
             <div className="input">
               <p>Last Name</p>
-              <input type="text"/>
+              <input 
+              type="text"
+              onChange={(e) => this.handleChange('lastName', e)}
+              value={this.state.lastName}
+              /> 
             </div>
 
             <div className="input">
               <p>Email</p>
-              <input type="email"/>
+              <input 
+              type="text"
+              onChange={(e) => this.handleChange('email', e)}
+              value={this.state.email}
+              /> 
             </div>
 
             <div className="input">
               <p>Country</p>
               <CountryDropdown
+                className="CountryDropdown"
                 value={country}
                 onChange={(val) => this.selectCountry(val)} 
               />
@@ -81,6 +130,7 @@ export default class App extends Component {
               <p>State/Province</p>
               <RegionDropdown
                 country={country}
+                className="RegionDropdown"
                 value={region}
                 onChange={(val) => this.selectRegion(val)} 
               />
@@ -88,17 +138,29 @@ export default class App extends Component {
 
             <div className="input">
               <p>Address</p>
-              <input type="text"/>
+              <input 
+              type="text"
+              onChange={(e) => this.handleChange('address', e)}
+              value={this.state.address}
+              /> 
             </div>
 
             <div className="input">
               <p>City</p>
-              <input type="text"/>
+              <input 
+              type="text"
+              onChange={(e) => this.handleChange('city', e)}
+              value={this.state.city}
+              /> 
             </div>
 
             <div className="input">
               <p>Postal Code</p>
-              <input type="text"/>
+              <input 
+              type="text"
+              onChange={(e) => this.handleChange('postalCode', e)}
+              value={this.state.postalCode}
+              /> 
             </div>
 
             <button className="continuetopayment">Continue To Payment</button>
