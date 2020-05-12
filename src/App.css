@@ -65,6 +65,12 @@
   max-width: 30rem;
   padding: 2rem;
 }
+.iframecontainer{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
 
 
 input{
@@ -96,6 +102,13 @@ h1{
   line-height: 2rem;
 }
 
+iframe{
+  height: 80%;
+  width: 80%;
+  box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.2);
+
+}
+
 button {
   background: #3898ec;
   color: white;
@@ -109,3 +122,4 @@ button {
 button:hover{
   background: #218cea;
 }
+

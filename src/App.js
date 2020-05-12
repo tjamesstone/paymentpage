@@ -21,7 +21,9 @@ export default class App extends Component {
       postalCode: '',
       sfdcAccountId: '',
       ordwayId: 'C-00040',
-      paymentLink: ''
+      paymentLink: '',
+      billingContactId: '',
+      buttonClicked: false
     };
   }
  
@@ -43,7 +45,9 @@ export default class App extends Component {
     this.setState({
         [key]: e.target.value
     })
-    console.log(this.state)
+}
+goBack = () => {
+  this.setState({buttonClicked: false})
 }
 
 fetchOrdwayRedirectUrl = ordwayId => {
@@ -63,13 +67,14 @@ fetchOrdwayRedirectUrl = ordwayId => {
 }
 
 createBillingContactInOrdwayAndUpdateBillingAddress= () => {
-  console.log('button click is working')
+  this.setState({buttonClicked: true})
 //make sure all fields are filled out
 
 
 //post billing contact info to ordway
 let proxyUrl = "https://cors-anywhere.herokuapp.com/";
-let url = 'https://app.ordwaylabs.com/api/v1/customers/' + this.state.ordwayId;
+let url = "https://app.ordwaylabs.com/api/v1/customers/" + this.state.ordwayId + "/contacts"
+
 let headers = {'X-User-Email': 'operations@grow.com', 'X-User-Token': 'CydMaaYo7FF61sLsswb1', 'X-User-Company':'Grow'}
 let body = {
   "customer_id": this.state.ordwayId,
@@ -83,16 +88,37 @@ let body = {
   "country": this.state.country
 }
 
-axios.post(proxyUrl+url, {headers}, body).then( res => {
+axios.post(proxyUrl+url, body, {headers}).then( res => {
   console.log('Axios post hit')
-  console.log(res)
+  console.log(res.data.id)
+  this.setState({billingContactId: res.data.id})
 })
 .catch(function(error){
   console.log('axios post failed here is the errror:' + error)
 })
 
+//set new contact as primary billing contact
+let updateAccountUrl = 'https://app.ordwaylabs.com/api/v1/customers/' + this.state.ordwayId;
+let updateAccountBody = {
+  "billing_contact_id": this.state.billingContactId,
+  "shipping_contact_id": this.state.billingContactId
+}
+
+axios.put(proxyUrl+updateAccountUrl, updateAccountBody, {headers}).then(res=>{
+  console.log('Setting primary billing contact in ordway')
+  console.log(this.state.billingContactId)
+  console.log(res.data.billing_contact_id)
+})
+.catch(function(error){
+  console.log('Didnt set primary billing contact')
+})
+
 //redirect to enter payment
-window.location = this.state.paymentLink
+
+
+
+
+//window.location = this.state.paymentLink
 
 }
 
@@ -103,111 +129,123 @@ continueToPayment = () =>{
 
 
   render(){
-    const {country, region} = this.state
-    return (
-      <div className="App">
-        <div className="info">
-          <h1>Congrats on signing with Grow!</h1>
-          <h3>Grab your payment info and let's get started</h3>
-          <p>Insights that will change your business are a just a few clicks away</p>
-          <img className="blackcomputer" src={blackComputer} alt="BI Dashboard"/>
-        </div>
+    const {country, region, buttonClicked} = this.state
 
-
-        
-        <div className="form">
-          <p className="label">TO GET STARTED ENTER YOUR BILLING INFORMATION BELOW</p>
-          <div className="formcolumn">
-            <div className="input">
-              <p>Company Name</p>
-              <input 
-              type="text"
-              onChange={(e) => this.handleChange('companyName', e)}
-              value={this.state.companyName}
-              />
-              
-            </div>
-
-            <div className="input">
-              <p>First Name</p>
-              <input 
-              type="text"
-              onChange={(e) => this.handleChange('firstName', e)}
-              value={this.state.firstName}
-              />            
+    if(buttonClicked === false){
+      return (
+        <div className="App">
+          <div className="info">
+            <h1>Congrats on signing with Grow!</h1>
+            <h3>Grab your payment info and let's get started</h3>
+            <p>Insights that will change your business are a just a few clicks away</p>
+            <img className="blackcomputer" src={blackComputer} alt="BI Dashboard"/>
+          </div>
+  
+  
+          
+          <div className="form">
+            <p className="label">TO GET STARTED ENTER YOUR BILLING INFORMATION BELOW</p>
+            <div className="formcolumn">
+              <div className="input">
+                <p>Company Name</p>
+                <input 
+                type="text"
+                onChange={(e) => this.handleChange('companyName', e)}
+                value={this.state.companyName}
+                />
+                
               </div>
-
-            <div className="input">
-              <p>Last Name</p>
-              <input 
-              type="text"
-              onChange={(e) => this.handleChange('lastName', e)}
-              value={this.state.lastName}
-              /> 
+  
+              <div className="input">
+                <p>First Name</p>
+                <input 
+                type="text"
+                onChange={(e) => this.handleChange('firstName', e)}
+                value={this.state.firstName}
+                />            
+                </div>
+  
+              <div className="input">
+                <p>Last Name</p>
+                <input 
+                type="text"
+                onChange={(e) => this.handleChange('lastName', e)}
+                value={this.state.lastName}
+                /> 
+              </div>
+  
+              <div className="input">
+                <p>Email</p>
+                <input 
+                type="text"
+                onChange={(e) => this.handleChange('email', e)}
+                value={this.state.email}
+                /> 
+              </div>
+  
+              <div className="input">
+                <p>Country</p>
+                <CountryDropdown
+                  className="CountryDropdown"
+                  value={country}
+                  onChange={(val) => this.selectCountry(val)} 
+                />
+              </div>
+  
+              <div className="input">
+                <p>State/Province</p>
+                <RegionDropdown
+                  country={country}
+                  className="RegionDropdown"
+                  value={region}
+                  onChange={(val) => this.selectRegion(val)} 
+                />
+              </div>
+  
+              <div className="input">
+                <p>Address</p>
+                <input 
+                type="text"
+                onChange={(e) => this.handleChange('address', e)}
+                value={this.state.address}
+                /> 
+              </div>
+  
+              <div className="input">
+                <p>City</p>
+                <input 
+                type="text"
+                onChange={(e) => this.handleChange('city', e)}
+                value={this.state.city}
+                /> 
+              </div>
+  
+              <div className="input">
+                <p>Postal Code</p>
+                <input 
+                type="text"
+                onChange={(e) => this.handleChange('postalCode', e)}
+                value={this.state.postalCode}
+                /> 
+              </div>
+  
+              <button 
+              onClick={this.createBillingContactInOrdwayAndUpdateBillingAddress}
+              className="continuetopayment">Continue To Payment</button>
             </div>
-
-            <div className="input">
-              <p>Email</p>
-              <input 
-              type="text"
-              onChange={(e) => this.handleChange('email', e)}
-              value={this.state.email}
-              /> 
-            </div>
-
-            <div className="input">
-              <p>Country</p>
-              <CountryDropdown
-                className="CountryDropdown"
-                value={country}
-                onChange={(val) => this.selectCountry(val)} 
-              />
-            </div>
-
-            <div className="input">
-              <p>State/Province</p>
-              <RegionDropdown
-                country={country}
-                className="RegionDropdown"
-                value={region}
-                onChange={(val) => this.selectRegion(val)} 
-              />
-            </div>
-
-            <div className="input">
-              <p>Address</p>
-              <input 
-              type="text"
-              onChange={(e) => this.handleChange('address', e)}
-              value={this.state.address}
-              /> 
-            </div>
-
-            <div className="input">
-              <p>City</p>
-              <input 
-              type="text"
-              onChange={(e) => this.handleChange('city', e)}
-              value={this.state.city}
-              /> 
-            </div>
-
-            <div className="input">
-              <p>Postal Code</p>
-              <input 
-              type="text"
-              onChange={(e) => this.handleChange('postalCode', e)}
-              value={this.state.postalCode}
-              /> 
-            </div>
-
-            <button 
-            onClick={this.createBillingContactInOrdwayAndUpdateBillingAddress}
-            className="continuetopayment">Continue To Payment</button>
           </div>
         </div>
-      </div>
-    )
+      )
+    } else if(buttonClicked === true){
+      return(
+        <div className="App">
+          <iframe scrolling="no" title="Payment Page" src={this.state.paymentLink}></iframe>
+          <button onClick={this.goBack} >Back</button>
+        </div>
+      )
+    }
+
+    
   }
 }
 
