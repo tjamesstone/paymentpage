@@ -67,7 +67,7 @@ fetchOrdwayRedirectUrl = ordwayId => {
 }
 
 createBillingContactInOrdwayAndUpdateBillingAddress= () => {
-  this.setState({buttonClicked: true})
+  //this.setState({buttonClicked: true})
 //make sure all fields are filled out
 
 
@@ -99,14 +99,12 @@ axios.post(proxyUrl+url, body, {headers}).then( res => {
 
 //set new contact as primary billing contact
 let updateAccountUrl = 'https://app.ordwaylabs.com/api/v1/customers/' + this.state.ordwayId;
-let updateAccountBody = {
-  "billing_contact_id": this.state.billingContactId,
-  "shipping_contact_id": this.state.billingContactId
-}
+let updateAccountBody = {"billing_contact_id": this.state.billingContactId}
 
 axios.put(proxyUrl+updateAccountUrl, updateAccountBody, {headers}).then(res=>{
   console.log('Setting primary billing contact in ordway')
   console.log(this.state.billingContactId)
+  console.log(res)
   console.log(res.data.billing_contact_id)
 })
 .catch(function(error){
@@ -115,18 +113,9 @@ axios.put(proxyUrl+updateAccountUrl, updateAccountBody, {headers}).then(res=>{
 
 //redirect to enter payment
 
-
-
-
 //window.location = this.state.paymentLink
 
 }
-
-continueToPayment = () =>{
-  
-}
-
-
 
   render(){
     const {country, region, buttonClicked} = this.state
@@ -239,8 +228,11 @@ continueToPayment = () =>{
     } else if(buttonClicked === true){
       return(
         <div className="App">
-          <iframe scrolling="no" title="Payment Page" src={this.state.paymentLink}></iframe>
-          <button onClick={this.goBack} >Back</button>
+          <div className="iframecontainer">
+            <iframe scrolling="yes" title="Payment Page" src={this.state.paymentLink}></iframe>
+
+            <button onClick={this.goBack} >Back</button>
+          </div>
         </div>
       )
     }
