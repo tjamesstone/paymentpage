@@ -29,25 +29,62 @@ export default class App extends Component {
  
 
   //functions
-  componentDidMount(){
+componentDidMount(){
+    //getSFDCAccountDetails(sfdcAccountId);
+    //create billing account? 
     this.fetchOrdwayRedirectUrl();
   }
 
-  selectCountry (val) {
+getSFDCAccountDetails = sfdcAccountId => {
+
+  }
+
+createOrdwayAccount = (companyName, sfdcAccountId) => {
+    let proxyUrl = "https://cors-anywhere.herokuapp.com/";
+    let url = "https://app.ordwaylabs.com/api/v1/customers";
+    let headers = {'X-User-Email': 'operations@grow.com', 'X-User-Token': 'CydMaaYo7FF61sLsswb1', 'X-User-Company':'Grow'}
+    let body = {
+      "name": companyName,
+      "payment_terms": "Due on receipt",
+      "status": "Active",
+      "balance": "0.0",
+      "tax_exempt": false,
+      "auto_pay": true,
+      "custom_fields": {
+        "salesforce_id": sfdcAccountId
+      },
+      "payment_type": "Electronic",
+      "currency": "USD",
+      "payment_gateway_id": "",
+      "delivery_preferences": {
+        "print": true,
+        "email": true
+      }
+    };
+
+    axios.post(proxyUrl+url, body, {headers}).then( res => {
+      console.log(res.data)
+    })
+    .catch(function(error){
+      console.log('axios failed to create customer account here is the errror:' + error)
+    })
+  }
+
+selectCountry (val) {
     this.setState({ country: val });
   }
  
-  selectRegion (val) {
+selectRegion (val) {
     this.setState({ region: val });
   }
 
-  handleChange(key, e){
+handleChange(key, e){
     this.setState({
         [key]: e.target.value
     })
 }
 goBack = () => {
-  this.setState({buttonClicked: false})
+  this.setState({buttonClicked: !this.state.buttonClicked})
 }
 
 fetchOrdwayRedirectUrl = ordwayId => {
@@ -218,7 +255,7 @@ axios.put(proxyUrl+updateAccountUrl, updateAccountBody, {headers}).then(res=>{
               </div>
   
               <button 
-              onClick={this.createBillingContactInOrdwayAndUpdateBillingAddress}
+              onClick={this.goBack}
               className="continuetopayment">Continue To Payment</button>
             </div>
           </div>
