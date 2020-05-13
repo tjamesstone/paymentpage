@@ -265,8 +265,7 @@ axios.put(proxyUrl+updateAccountUrl, updateAccountBody, {headers}).then(res=>{
       return(
         <div className="App">
           <div className="iframecontainer">
-            <iframe scrolling="yes" title="Payment Page" src={this.state.paymentLink}></iframe>
-
+            <iframe allow="fullscreen" scrolling="yes" title="Payment Page" src={this.state.paymentLink}></iframe>
             <button onClick={this.goBack} >Back</button>
           </div>
         </div>
