@@ -92,14 +92,32 @@ axios.post(proxyUrl+url, body, {headers}).then( res => {
   console.log('Axios post hit')
   console.log(res.data.id)
   this.setState({billingContactId: res.data.id})
+  console.log(this.state.billingContactId)
+  if(this.state.billingContactId === res.data.id){console.log('All good')}
 })
 .catch(function(error){
   console.log('axios post failed here is the errror:' + error)
 })
 
+this.setPrimaryBillingContact();
+
 //set new contact as primary billing contact
+
+//redirect to enter payment
+
+//window.location = this.state.paymentLink
+
+}
+
+setPrimaryBillingContact = () => {
+let headers = {'X-User-Email': 'operations@grow.com', 'X-User-Token': 'CydMaaYo7FF61sLsswb1', 'X-User-Company':'Grow'}
+let proxyUrl = "https://cors-anywhere.herokuapp.com/";
 let updateAccountUrl = 'https://app.ordwaylabs.com/api/v1/customers/' + this.state.ordwayId;
-let updateAccountBody = {"billing_contact_id": this.state.billingContactId}
+let billingContactId = this.state.billingContactId;
+console.log(billingContactId)
+let updateAccountBody = {"billing_contact_id": billingContactId}
+
+console.log(updateAccountBody)
 
 axios.put(proxyUrl+updateAccountUrl, updateAccountBody, {headers}).then(res=>{
   console.log('Setting primary billing contact in ordway')
@@ -110,11 +128,6 @@ axios.put(proxyUrl+updateAccountUrl, updateAccountBody, {headers}).then(res=>{
 .catch(function(error){
   console.log('Didnt set primary billing contact')
 })
-
-//redirect to enter payment
-
-//window.location = this.state.paymentLink
-
 }
 
   render(){
