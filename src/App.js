@@ -23,7 +23,8 @@ export default class App extends Component {
       ordwayId: 'C-00040',
       paymentLink: '',
       billingContactId: '',
-      buttonClicked: false
+      buttonClicked: false,
+      paymentType: ''
     };
   }
  
@@ -72,6 +73,11 @@ createOrdwayAccount = (companyName, sfdcAccountId) => {
 
 selectCountry (val) {
     this.setState({ country: val });
+    if(val === "United States"){
+      this.setState({paymentType: "Bank Account"})
+    } else{
+      this.setState({paymentType: "Credit Card"})
+    }
   }
  
 selectRegion (val) {
@@ -82,9 +88,11 @@ handleChange(key, e){
     this.setState({
         [key]: e.target.value
     })
+    console.log(this.state)
 }
 goBack = () => {
   this.setState({buttonClicked: !this.state.buttonClicked})
+  console.log(this.state)
 }
 
 fetchOrdwayRedirectUrl = ordwayId => {
@@ -154,7 +162,30 @@ axios.put(proxyUrl+updateAccountUrl, updateAccountBody, {headers}).then(res=>{
 
 
   render(){
-    const {country, region, buttonClicked} = this.state
+    const {paymentType, country, region, buttonClicked} = this.state
+    let option1;
+    let option2;
+    if(country === "United States"){
+      option1 = <option value={"Bank Account"}>Bank Account</option>;
+      option2 = <option value={"Credit Card"}>Credit Card</option>;
+    } else {
+      option1 = <option value={"Credit Card"}>Credit Card</option>;
+    }
+
+    let paymentForm;
+    if(paymentType === "Credit Card"){
+      paymentForm = 
+      <div className="creditcardfrom">
+        <p>Credit Card Form Here</p>
+      </div>
+    } else if(paymentType === "Bank Account"){
+      paymentForm = 
+      <div className="achform">
+        <p>ACH Form Here </p>
+      </div>
+    }
+
+
 
     if(buttonClicked === false){
       return (
@@ -265,7 +296,16 @@ axios.put(proxyUrl+updateAccountUrl, updateAccountBody, {headers}).then(res=>{
       return(
         <div className="App">
           <div className="iframecontainer">
-            <iframe allow="fullscreen" scrolling="yes" title="Payment Page" src={this.state.paymentLink}></iframe>
+            {/*<iframe allow="fullscreen" scrolling="yes" title="Payment Page" src={this.state.paymentLink}></iframe>*/}
+            
+            <div className="formcolumn">
+                <label htmlFor="paymentType">Payment Type</label>
+                <select value={this.state.value} onChange={(e) => this.handleChange('paymentType', e)} className="paymenttype" name="PaymentType" id="paymentType">
+                  {option1}
+                  {option2}
+                </select>
+                {paymentForm}
+            </div>
             <button onClick={this.goBack} >Back</button>
           </div>
         </div>
