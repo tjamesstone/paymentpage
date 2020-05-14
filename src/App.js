@@ -77,6 +77,8 @@ getOrdwayBillingContact = (billingContactId) => {
     console.log(res.data)
     let {first_name, last_name, email, state, country, city, address1, zip, accounting_email} = res.data
     this.setState({firstName: first_name, lastName: last_name, email: email, country: country, region: state, city: city, address: address1, postalCode: zip, accountingEmail: accounting_email})
+    res.data.country === "United States" ? this.setState({paymentType: "Bank Account"}) : this.setState({paymentType: "Credit Card"})
+
   })
   .catch(function(error){
     console.log(error)
@@ -228,7 +230,97 @@ handleInputChange = (e) => {
 
 
   render(){
-    const {country, region} = this.state
+    const {country, region, paymentType} = this.state
+
+    let paymentForm;
+    let creditCardForm = <div className="PaymentForm" id="PaymentForm">
+                            <Cards
+                              cvc={this.state.cvc}
+                              expiry={this.state.expiry}
+                              focused={this.state.focus}
+                              name={this.state.name}
+                              number={this.state.number}
+                            />
+                            <form className="CreditCardForm">
+                              <input
+                                className="creditcardinput"
+                                type="tel"
+                                name="number"
+                                placeholder="Card Number"
+                                onChange={this.handleInputChange}
+                                onFocus={this.handleInputFocus}
+                              />
+                              <input
+                                className="creditcardinput"
+                                type="text"
+                                name="name"
+                                placeholder="Name"
+                                onChange={this.handleInputChange}
+                                onFocus={this.handleInputFocus}
+                              />
+                              <input 
+                                className="creditcardinput"
+                                type="tel" 
+                                name="expiry" 
+                                placeholder="Valid Thru"
+                                onChange={this.handleInputChange}
+                                onFocus={this.handleInputFocus}
+                                maxLength="5"
+                                />
+                                <input 
+                                className="creditcardinput"
+                                type="tel"
+                                name="cvc" 
+                                placeholder="CVC" 
+                                maxLength="4"
+                                onChange={this.handleInputChange}
+                                onFocus={this.handleInputFocus}></input>
+                            </form>
+                          </div>
+    let achForm = <div className="PaymentForm" id="PaymentForm">
+                            <div className="paymenttypeselector">
+                              
+                            </div>
+                            <form className="CreditCardForm">
+                              <input
+                                className="creditcardinput"
+                                type="number"
+                                name="number"
+                                placeholder="Account Number"
+                                onChange={this.handleInputChange}
+                                onFocus={this.handleInputFocus}
+                              />
+                              <input
+                                className="creditcardinput"
+                                type="text"
+                                name="name"
+                                placeholder="Account Holder Name"
+                                onChange={this.handleInputChange}
+                                onFocus={this.handleInputFocus}
+                              />
+                              <input 
+                                className="creditcardinput"
+                                type="number" 
+                                name="routingnumber" 
+                                placeholder="Routing Number"
+                                onChange={this.handleInputChange}
+                                onFocus={this.handleInputFocus}
+                                />
+                                <input 
+                                className="creditcardinput"
+                                type="number"
+                                name="routingnumber" 
+                                placeholder="Confirm Routing Number" 
+                                onChange={this.handleInputChange}
+                                onFocus={this.handleInputFocus}></input>
+                            </form>
+                          </div>
+    if(paymentType === "Bank Account"){
+      paymentForm = achForm
+    } else if(paymentType === "Credit Card"){
+      paymentForm = creditCardForm
+    }
+    //paymentType === "Bank Account" ? paymentForm = achForm : paymentForm = creditCardForm
     //const {paymentType, buttonClicked} = this.state
     //let option1;
     //let option2;
@@ -368,52 +460,8 @@ handleInputChange = (e) => {
             <p className="label">PAYMENT INFO</p>
 
             <div className="formcolumn">
-              
-            <div className="PaymentForm" id="PaymentForm">
-                    <Cards
-                      cvc={this.state.cvc}
-                      expiry={this.state.expiry}
-                      focused={this.state.focus}
-                      name={this.state.name}
-                      number={this.state.number}
-                    />
-                    <form className="CreditCardForm">
-                      <input
-                        className="creditcardinput"
-                        type="tel"
-                        name="number"
-                        placeholder="Card Number"
-                        onChange={this.handleInputChange}
-                        onFocus={this.handleInputFocus}
-                      />
-                      <input
-                        className="creditcardinput"
-                        type="text"
-                        name="name"
-                        placeholder="Name"
-                        onChange={this.handleInputChange}
-                        onFocus={this.handleInputFocus}
-                      />
-                      <input 
-                        className="creditcardinput"
-                        type="tel" 
-                        name="expiry" 
-                        placeholder="Valid Thru"
-                        onChange={this.handleInputChange}
-                        onFocus={this.handleInputFocus}
-                        maxLength="5"
-                        />
-                        <input 
-                        className="creditcardinput"
-                        type="tel"
-                        name="cvc" 
-                        placeholder="CVC" 
-                        maxLength="4"
-                        onChange={this.handleInputChange}
-                        onFocus={this.handleInputFocus}></input>
-                    </form>
-                  </div>
-                  </div>
+              {paymentForm}
+            </div>
            
           </div>
           </div>
