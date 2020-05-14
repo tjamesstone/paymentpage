@@ -23,6 +23,7 @@ export default class App extends Component {
       address: '',
       city: '',
       postalCode: '',
+      accountingEmail: '',
       sfdcAccountId: '',
       ordwayId: 'C-00040',
       paymentLink: '',
@@ -38,6 +39,9 @@ export default class App extends Component {
       focus: '',
       name: '',
       number: '',
+      bankaccount: {
+
+      }
     };
   }
  
@@ -46,29 +50,71 @@ export default class App extends Component {
 componentDidMount(){
     //getSFDCAccountDetails(sfdcAccountId);
     //create billing account? 
-    this.fetchOrdwayRedirectUrl();
+    this.getOrdwayAccount();
   }
 
 //API Functions
+
+getOrdwayAccount = () => {
+  let {proxyUrl, headers} = this.state.ordwayAPI
+  let url = 'https://app.ordwaylabs.com/api/v1/customers/' + this.state.ordwayId + '/verbose'
+  let billingContactId;
+  axios.get(proxyUrl + url, {headers}).then( res =>{
+    this.setState({companyName: res.data.name, paymentLink: res.data.update_payment_method_url, billingContactId: res.data.billing_contact_id})
+    billingContactId = res.data.billing_contact_id
+    this.getOrdwayBillingContact(billingContactId);
+  })
+  .catch(function(error){
+    console.log(error)
+  })
+}
+
+getOrdwayBillingContact = (billingContactId) => {
+  let {proxyUrl, headers} = this.state.ordwayAPI
+  let {ordwayId} = this.state
+  let url = 'https://app.ordwaylabs.com/api/v1/customers/' +ordwayId + '/contacts/' + billingContactId
+  axios.get(proxyUrl + url, {headers}).then( res =>{
+    console.log(res.data)
+    let {first_name, last_name, email, state, country, city, address1, zip, accounting_email} = res.data
+    this.setState({firstName: first_name, lastName: last_name, email: email, country: country, region: state, city: city, address: address1, postalCode: zip, accountingEmail: accounting_email})
+  })
+  .catch(function(error){
+    console.log(error)
+  })
+}
+
+updateBillingInfo = () => {
+  let {companyName, firstName, lastName, email, country, region, city, address, postalCode, accountingEmail, ordwayId, billingContactId} = this.state
+  let {proxyUrl, headers} = this.state.ordwayAPI
+  let billingContactURL = 'https://app.ordwaylabs.com/api/v1/customers/' +ordwayId + '/contacts/' + billingContactId
+  let ordwayAccountURL = "https://app.ordwaylabs.com/api/v1/customers/" + ordwayId
+  let billingContactUpdateBody = {"display_name": firstName+lastName, "first_name": firstName, "last_name": lastName, "email": email, "state": region, "country": country, "city": city, "address1": address, "zip": postalCode, "accounting_email": accountingEmail}
+  let ordwayAccountUpdateBody = {"billing_contact_id": billingContactId, "name": companyName, "shipping_contact_id": billingContactId}
+  
+  //Update Ordway Account
+  axios.put(proxyUrl+ordwayAccountURL, ordwayAccountUpdateBody, {headers}).then(res=>{
+    res.status === 200 ? console.log('Update to Ordway Account complete') : console.log("Didn't update Ordway Account right")
+    console.log(res.data)
+    //Update Billing Contact
+    axios.put(proxyUrl+billingContactURL, billingContactUpdateBody, {headers}).then(res=>{
+      res.status === 200 ? console.log('Update to Billing Contact complete') : console.log("Didn't update billing account right")
+      console.log("Ordway Account Data:")
+      console.log(res.data)
+    })
+    .catch(function(error){
+      console.log('Didnt set primary billing contact:'+ error)
+    })
+  })
+  .catch(function(error){
+    console.log('Didnt set primary billing contact:' + error)
+  })
+}
 
 getSFDCAccountDetails = sfdcAccountId => {
 
   }
 
-fetchOrdwayRedirectUrl = ordwayId => {
-    let {proxyUrl, headers} = this.state.ordwayAPI
-    let url = 'https://app.ordwaylabs.com/api/v1/customers/' + this.state.ordwayId + '/verbose'
-    
-    axios.get(proxyUrl + url, {headers}).then( res =>{
-      console.log(res.data.pay_now_url)
-      let ordwayPaymentLink = res.data.pay_now_url
-      this.setState({paymentLink: ordwayPaymentLink})
-      console.log(this.state)
-    })
-    .catch(function(error){
-      console.log(error)
-    })
-  }
+
 
   createBillingContactInOrdwayAndUpdateBillingAddress= () => {
     //this.setState({buttonClicked: true})
@@ -163,11 +209,6 @@ handleChange(key, e){
     this.setState({
         [key]: e.target.value
     })
-    console.log(this.state)
-}
-goBack = () => {
-  this.setState({buttonClicked: !this.state.buttonClicked})
-  console.log(this.state)
 }
 
 //Card Functions
@@ -187,36 +228,36 @@ handleInputChange = (e) => {
 
 
   render(){
-    const {paymentType, country, region, buttonClicked} = this.state
-    let option1;
-    let option2;
-    if(country === "United States"){
-      option1 = <option value={"Bank Account"}>Bank Account</option>;
-      option2 = <option value={"Credit Card"}>Credit Card</option>;
-    } else {
-      option1 = <option value={"Credit Card"}>Credit Card</option>;
-    }
+    const {country, region} = this.state
+    //const {paymentType, buttonClicked} = this.state
+    //let option1;
+    //let option2;
+    //if(country === "United States"){
+    //  option1 = <option value={"Bank Account"}>Bank Account</option>;
+    //  option2 = <option value={"Credit Card"}>Credit Card</option>;
+    //} else {
+    //  option1 = <option value={"Credit Card"}>Credit Card</option>;
+    //}
 
-    let paymentForm;
-    if(paymentType === "Credit Card"){
-      paymentForm = 
-      <div className="creditcardfrom">
-        <p>Credit Card Form Here</p>
-      </div>
-    } else if(paymentType === "Bank Account"){
-      paymentForm = 
-      <div className="achform">
-        <p>ACH Form Here </p>
-      </div>
-    }
+    //let paymentForm;
+    //if(paymentType === "Credit Card"){
+    //  paymentForm = 
+    // <div className="creditcardfrom">
+    //    <p>Credit Card Form Here</p>
+    //  </div>
+    //} else if(paymentType === "Bank Account"){
+    //  paymentForm = 
+    //  <div className="achform">
+    //    <p>ACH Form Here </p>
+    //  </div>
+    //}
 
       return (
         <div className="App">
-          
+          <div className="forms">
           <div className="form">
-          <p className="label">TO GET STARTED ENTER YOUR BILLING INFORMATION BELOW</p>
+          <p className="label">COMPANY INFO</p>
             <div className="formcolumn">
-            <p className="label">Company Info</p>
               <div className="input">
                 <p>Company Name</p>
                 <input 
@@ -233,11 +274,10 @@ handleInputChange = (e) => {
                 <input 
                 className="infoinput"
                 type="text"
-                onChange={(e) => this.handleChange('email', e)}
-                value={this.state.email}
+                onChange={(e) => this.handleChange('accountingEmail', e)}
+                value={this.state.accountingEmail}
                 /> 
               </div>
-              <p className="label">Bill To Address</p>
               <div className="input">
                 <p>Country</p>
                 <CountryDropdown
@@ -286,20 +326,14 @@ handleInputChange = (e) => {
                 value={this.state.postalCode}
                 /> 
               </div>
-  
-              <button 
-              onClick={this.createBillingContactInOrdwayAndUpdateBillingAddress}
-              className="continuetopayment">Continue To Payment</button>
             </div>
           </div>
   
   
           
           <div className="form">
-            <p className="label">TO GET STARTED ENTER YOUR BILLING INFORMATION BELOW</p>
-            <div className="formcolumn">
-            <p className="label">Bill To Contact</p>
-  
+            <p className="label">BILL TO CONTACT INFO</p>
+            <div className="formcolumn">  
               <div className="input">
                 <p>First Name</p>
                 <input 
@@ -329,14 +363,13 @@ handleInputChange = (e) => {
                 value={this.state.email}
                 /> 
               </div>
-  
-              
-  
-              <button 
-              onClick={this.createBillingContactInOrdwayAndUpdateBillingAddress}
-              className="continuetopayment">Continue To Payment</button>
+
             </div>
-            <div id="PaymentForm">
+            <p className="label">PAYMENT INFO</p>
+
+            <div className="formcolumn">
+              
+            <div className="PaymentForm" id="PaymentForm">
                     <Cards
                       cvc={this.state.cvc}
                       expiry={this.state.expiry}
@@ -346,6 +379,7 @@ handleInputChange = (e) => {
                     />
                     <form className="CreditCardForm">
                       <input
+                        className="creditcardinput"
                         type="tel"
                         name="number"
                         placeholder="Card Number"
@@ -353,6 +387,7 @@ handleInputChange = (e) => {
                         onFocus={this.handleInputFocus}
                       />
                       <input
+                        className="creditcardinput"
                         type="text"
                         name="name"
                         placeholder="Name"
@@ -360,19 +395,29 @@ handleInputChange = (e) => {
                         onFocus={this.handleInputFocus}
                       />
                       <input 
+                        className="creditcardinput"
                         type="tel" 
                         name="expiry" 
                         placeholder="Valid Thru"
                         onChange={this.handleInputChange}
                         onFocus={this.handleInputFocus}
+                        maxLength="5"
                         />
-                        <input type="tel" name="cvc" placeholder="CVC" onChange={this.handleInputChange}
+                        <input 
+                        className="creditcardinput"
+                        type="tel"
+                        name="cvc" 
+                        placeholder="CVC" 
+                        maxLength="4"
+                        onChange={this.handleInputChange}
                         onFocus={this.handleInputFocus}></input>
                     </form>
                   </div>
+                  </div>
            
           </div>
-          
+          </div>
+          <button onClick={this.updateBillingInfo} className="continuetopayment">Save</button>
         </div>
       )
   }

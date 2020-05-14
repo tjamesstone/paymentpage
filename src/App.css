@@ -3,7 +3,7 @@
 .App {
   text-align: center;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   margin: 0 auto;
@@ -32,6 +32,10 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+.forms{
+  display: flex;
+
 }
 
 .label{
@@ -118,7 +122,6 @@ button {
   font-weight: 700;
   font-size: 16px;
   height: 2em;
-  width: 50%;
 }
 
 button:hover{
@@ -128,9 +131,23 @@ button:hover{
 .CreditCardForm{
   display: flex;
   flex-direction: column;
+  margin-left: 1rem;
+  align-items: center;
+  justify-content: center;
+}
+.creditcardinput{
+  background: #f8f8f8;
+  border: 0;
+  outline: 0;
+  border-bottom: 2px solid black;
+  color: black;
+  height: 2rem;
+  font-family: 'Montserrat', sans-serif;
+  font-size: .75rem;
 }
 
 .PaymentForm{
   display: flex;
   flex-direction: row;
+  margin: 1rem;
 }
