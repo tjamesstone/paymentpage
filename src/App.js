@@ -236,14 +236,34 @@ handleInputChange = (e) => {
 
     let option1;
     let option2;
+
     if(country === "United States"){
       option1 = <option value={"Bank Account"}>Bank Account</option>;
       option2 = <option value={"Credit Card"}>Credit Card</option>;
     } else {
       option1 = <option value={"Credit Card"}>Credit Card</option>;
     }
+   
 
     let paymentForm;
+    let paymentSelectionYesOrNo;
+    let paymentTypeSelection = <div className="paymentselectorcontainor">
+                                  <label htmlFor="paymentType">Payment Type</label>
+                                  <select value={this.state.value} onChange={(e) => this.handleChange('paymentType', e)} className="paymenttype" name="PaymentType" id="paymentType">
+                                  {option1}
+                                  {option2}
+                                  </select>
+                                </div>
+
+
+    let noPaymentTypeSelection;
+
+    if(country === "United States"){
+      paymentSelectionYesOrNo = paymentTypeSelection;
+    } else {
+      paymentSelectionYesOrNo = noPaymentTypeSelection;
+    }
+
     let creditCardForm = <div className="PaymentForm" id="PaymentForm">
                             <Cards
                               cvc={this.state.cvc}
@@ -331,6 +351,8 @@ handleInputChange = (e) => {
     } else if(paymentType === "Credit Card"){
       paymentForm = creditCardForm
     }
+
+  
     //paymentType === "Bank Account" ? paymentForm = achForm : paymentForm = creditCardForm
     //const {paymentType, buttonClicked} = this.state
     //let option1;
@@ -471,12 +493,7 @@ handleInputChange = (e) => {
             <p className="label">PAYMENT INFO</p>
 
             <div className="formcolumn">
-                <label htmlFor="paymentType">Payment Type</label>
-                <select value={this.state.value} onChange={(e) => this.handleChange('paymentType', e)} className="paymenttype" name="PaymentType" id="paymentType">
-                  {option1}
-                  {option2}
-                </select>
-            
+              {paymentSelectionYesOrNo}
               {paymentForm}
             </div>
            
