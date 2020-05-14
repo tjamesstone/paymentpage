@@ -1,8 +1,12 @@
 import React, {Component} from 'react';
 import './App.css';
 import { CountryDropdown, RegionDropdown } from 'react-country-region-selector';
-import blackComputer from './blackcomputer.png'
 import axios from 'axios';
+import 'react-credit-cards/es/styles-compiled.css';
+import Cards from 'react-credit-cards';
+
+
+
 
 
 export default class App extends Component {
@@ -24,7 +28,16 @@ export default class App extends Component {
       paymentLink: '',
       billingContactId: '',
       buttonClicked: false,
-      paymentType: ''
+      paymentType: '',
+      ordwayAPI: {
+        proxyUrl: "https://cors-anywhere.herokuapp.com/",
+        headers: {'X-User-Email': 'operations@grow.com', 'X-User-Token': 'CydMaaYo7FF61sLsswb1', 'X-User-Company':'Grow'},
+      },
+      cvc: '',
+      expiry: '',
+      focus: '',
+      name: '',
+      number: '',
     };
   }
  
@@ -36,14 +49,76 @@ componentDidMount(){
     this.fetchOrdwayRedirectUrl();
   }
 
+//API Functions
+
 getSFDCAccountDetails = sfdcAccountId => {
 
   }
 
+fetchOrdwayRedirectUrl = ordwayId => {
+    let {proxyUrl, headers} = this.state.ordwayAPI
+    let url = 'https://app.ordwaylabs.com/api/v1/customers/' + this.state.ordwayId + '/verbose'
+    
+    axios.get(proxyUrl + url, {headers}).then( res =>{
+      console.log(res.data.pay_now_url)
+      let ordwayPaymentLink = res.data.pay_now_url
+      this.setState({paymentLink: ordwayPaymentLink})
+      console.log(this.state)
+    })
+    .catch(function(error){
+      console.log(error)
+    })
+  }
+
+  createBillingContactInOrdwayAndUpdateBillingAddress= () => {
+    //this.setState({buttonClicked: true})
+  //make sure all fields are filled out
+  
+  
+  //post billing contact info to ordway
+  let {proxyUrl, headers} = this.state.ordwayAPI
+  let url = "https://app.ordwaylabs.com/api/v1/customers/" + this.state.ordwayId + "/contacts"
+  let body = {
+    "customer_id": this.state.ordwayId,
+    "first_name": this.state.firstName,
+    "last_name": this.state.lastName,
+    "email": this.state.email,
+    "address1": this.state.address,
+    "city": this.state.city,
+    "state": this.state.region,
+    "zip": this.state.postalCode,
+    "country": this.state.country
+  }
+  
+  axios.post(proxyUrl+url, body, {headers}).then( res => {
+    this.setState({billingContactId: res.data.id})
+    if(this.state.billingContactId === res.data.id){this.setPrimaryBillingContact();}
+  })
+  .catch(function(error){
+    console.log('axios post failed here is the errror:' + error)
+  })
+  //redirect to enter payment
+  //window.location = this.state.paymentLink
+  this.goBack();
+  }
+
+  setPrimaryBillingContact = () => {
+    let {proxyUrl, headers} = this.state.ordwayAPI
+    let updateAccountUrl = 'https://app.ordwaylabs.com/api/v1/customers/' + this.state.ordwayId;
+    let billingContactId = this.state.billingContactId;
+    let updateAccountBody = {"billing_contact_id": billingContactId}
+    
+    axios.put(proxyUrl+updateAccountUrl, updateAccountBody, {headers}).then(res=>{
+      this.state.billingContactId === res.data.billing_contact_id ? console.log('Billing Contact successfully set') : console.log('Billing Contact did not successfully set')
+    })
+    .catch(function(error){
+      console.log('Didnt set primary billing contact')
+    })
+    }
+
 createOrdwayAccount = (companyName, sfdcAccountId) => {
-    let proxyUrl = "https://cors-anywhere.herokuapp.com/";
+    let {proxyUrl, headers} = this.state.ordwayAPI
     let url = "https://app.ordwaylabs.com/api/v1/customers";
-    let headers = {'X-User-Email': 'operations@grow.com', 'X-User-Token': 'CydMaaYo7FF61sLsswb1', 'X-User-Company':'Grow'}
     let body = {
       "name": companyName,
       "payment_terms": "Due on receipt",
@@ -95,68 +170,18 @@ goBack = () => {
   console.log(this.state)
 }
 
-fetchOrdwayRedirectUrl = ordwayId => {
-  let proxyUrl = "https://cors-anywhere.herokuapp.com/";
-  let url = 'https://app.ordwaylabs.com/api/v1/customers/' + this.state.ordwayId + '/verbose'
-  let headers = {'X-User-Email': 'operations@grow.com', 'X-User-Token': 'CydMaaYo7FF61sLsswb1', 'X-User-Company':'Grow'}
+//Card Functions
+handleInputFocus = (e) => {
+  this.setState({ focus: e.target.name });
+}
+
+handleInputChange = (e) => {
+  const { name, value } = e.target;
   
-  axios.get(proxyUrl + url, {headers}).then( res =>{
-    console.log(res.data.pay_now_url)
-    let ordwayPaymentLink = res.data.pay_now_url
-    this.setState({paymentLink: ordwayPaymentLink})
-    console.log(this.state)
-  })
-  .catch(function(error){
-    console.log(error)
-  })
+  this.setState({ [name]: value });
 }
 
-createBillingContactInOrdwayAndUpdateBillingAddress= () => {
-  //this.setState({buttonClicked: true})
-//make sure all fields are filled out
 
-
-//post billing contact info to ordway
-let proxyUrl = "https://cors-anywhere.herokuapp.com/";
-let url = "https://app.ordwaylabs.com/api/v1/customers/" + this.state.ordwayId + "/contacts"
-let headers = {'X-User-Email': 'operations@grow.com', 'X-User-Token': 'CydMaaYo7FF61sLsswb1', 'X-User-Company':'Grow'}
-let body = {
-  "customer_id": this.state.ordwayId,
-  "first_name": this.state.firstName,
-  "last_name": this.state.lastName,
-  "email": this.state.email,
-  "address1": this.state.address,
-  "city": this.state.city,
-  "state": this.state.region,
-  "zip": this.state.postalCode,
-  "country": this.state.country
-}
-
-axios.post(proxyUrl+url, body, {headers}).then( res => {
-  this.setState({billingContactId: res.data.id})
-  if(this.state.billingContactId === res.data.id){this.setPrimaryBillingContact();}
-})
-.catch(function(error){
-  console.log('axios post failed here is the errror:' + error)
-})
-//redirect to enter payment
-//window.location = this.state.paymentLink
-}
-
-setPrimaryBillingContact = () => {
-let headers = {'X-User-Email': 'operations@grow.com', 'X-User-Token': 'CydMaaYo7FF61sLsswb1', 'X-User-Company':'Grow'}
-let proxyUrl = "https://cors-anywhere.herokuapp.com/";
-let updateAccountUrl = 'https://app.ordwaylabs.com/api/v1/customers/' + this.state.ordwayId;
-let billingContactId = this.state.billingContactId;
-let updateAccountBody = {"billing_contact_id": billingContactId}
-
-axios.put(proxyUrl+updateAccountUrl, updateAccountBody, {headers}).then(res=>{
-  this.state.billingContactId === res.data.billing_contact_id ? console.log('Billing Contact successfully set') : console.log('Billing Contact did not successfully set')
-})
-.catch(function(error){
-  console.log('Didnt set primary billing contact')
-})
-}
 
 
 
@@ -185,60 +210,34 @@ axios.put(proxyUrl+updateAccountUrl, updateAccountBody, {headers}).then(res=>{
       </div>
     }
 
-
-
-    if(buttonClicked === false){
       return (
         <div className="App">
-          <div className="info">
-            <h1>Congrats on signing with Grow!</h1>
-            <h3>Grab your payment info and let's get started</h3>
-            <p>Insights that will change your business are a just a few clicks away</p>
-            <img className="blackcomputer" src={blackComputer} alt="BI Dashboard"/>
-          </div>
-  
-  
           
           <div className="form">
-            <p className="label">TO GET STARTED ENTER YOUR BILLING INFORMATION BELOW</p>
+          <p className="label">TO GET STARTED ENTER YOUR BILLING INFORMATION BELOW</p>
             <div className="formcolumn">
+            <p className="label">Company Info</p>
               <div className="input">
                 <p>Company Name</p>
                 <input 
+                className="infoinput"
                 type="text"
                 onChange={(e) => this.handleChange('companyName', e)}
                 value={this.state.companyName}
                 />
                 
               </div>
-  
+
               <div className="input">
-                <p>First Name</p>
+                <p>Accounting Department Email</p>
                 <input 
-                type="text"
-                onChange={(e) => this.handleChange('firstName', e)}
-                value={this.state.firstName}
-                />            
-                </div>
-  
-              <div className="input">
-                <p>Last Name</p>
-                <input 
-                type="text"
-                onChange={(e) => this.handleChange('lastName', e)}
-                value={this.state.lastName}
-                /> 
-              </div>
-  
-              <div className="input">
-                <p>Email</p>
-                <input 
+                className="infoinput"
                 type="text"
                 onChange={(e) => this.handleChange('email', e)}
                 value={this.state.email}
                 /> 
               </div>
-  
+              <p className="label">Bill To Address</p>
               <div className="input">
                 <p>Country</p>
                 <CountryDropdown
@@ -260,7 +259,8 @@ axios.put(proxyUrl+updateAccountUrl, updateAccountBody, {headers}).then(res=>{
   
               <div className="input">
                 <p>Address</p>
-                <input 
+                <input                
+                className="infoinput"
                 type="text"
                 onChange={(e) => this.handleChange('address', e)}
                 value={this.state.address}
@@ -269,7 +269,8 @@ axios.put(proxyUrl+updateAccountUrl, updateAccountBody, {headers}).then(res=>{
   
               <div className="input">
                 <p>City</p>
-                <input 
+                <input                 
+                className="infoinput"
                 type="text"
                 onChange={(e) => this.handleChange('city', e)}
                 value={this.state.city}
@@ -278,7 +279,8 @@ axios.put(proxyUrl+updateAccountUrl, updateAccountBody, {headers}).then(res=>{
   
               <div className="input">
                 <p>Postal Code</p>
-                <input 
+                <input                 
+                className="infoinput"
                 type="text"
                 onChange={(e) => this.handleChange('postalCode', e)}
                 value={this.state.postalCode}
@@ -286,33 +288,93 @@ axios.put(proxyUrl+updateAccountUrl, updateAccountBody, {headers}).then(res=>{
               </div>
   
               <button 
-              onClick={this.goBack}
+              onClick={this.createBillingContactInOrdwayAndUpdateBillingAddress}
               className="continuetopayment">Continue To Payment</button>
             </div>
           </div>
-        </div>
-      )
-    } else if(buttonClicked === true){
-      return(
-        <div className="App">
-          <div className="iframecontainer">
-            {/*<iframe allow="fullscreen" scrolling="yes" title="Payment Page" src={this.state.paymentLink}></iframe>*/}
-            
+  
+  
+          
+          <div className="form">
+            <p className="label">TO GET STARTED ENTER YOUR BILLING INFORMATION BELOW</p>
             <div className="formcolumn">
-                <label htmlFor="paymentType">Payment Type</label>
-                <select value={this.state.value} onChange={(e) => this.handleChange('paymentType', e)} className="paymenttype" name="PaymentType" id="paymentType">
-                  {option1}
-                  {option2}
-                </select>
-                {paymentForm}
+            <p className="label">Bill To Contact</p>
+  
+              <div className="input">
+                <p>First Name</p>
+                <input 
+                className="infoinput"
+                type="text"
+                onChange={(e) => this.handleChange('firstName', e)}
+                value={this.state.firstName}
+                />            
+                </div>
+  
+              <div className="input">
+                <p>Last Name</p>
+                <input                 
+                className="infoinput"
+                type="text"
+                onChange={(e) => this.handleChange('lastName', e)}
+                value={this.state.lastName}
+                /> 
+              </div>
+  
+              <div className="input">
+                <p>Email</p>
+                <input                 
+                className="infoinput"
+                type="text"
+                onChange={(e) => this.handleChange('email', e)}
+                value={this.state.email}
+                /> 
+              </div>
+  
+              
+  
+              <button 
+              onClick={this.createBillingContactInOrdwayAndUpdateBillingAddress}
+              className="continuetopayment">Continue To Payment</button>
             </div>
-            <button onClick={this.goBack} >Back</button>
+            <div id="PaymentForm">
+                    <Cards
+                      cvc={this.state.cvc}
+                      expiry={this.state.expiry}
+                      focused={this.state.focus}
+                      name={this.state.name}
+                      number={this.state.number}
+                    />
+                    <form className="CreditCardForm">
+                      <input
+                        type="tel"
+                        name="number"
+                        placeholder="Card Number"
+                        onChange={this.handleInputChange}
+                        onFocus={this.handleInputFocus}
+                      />
+                      <input
+                        type="text"
+                        name="name"
+                        placeholder="Name"
+                        onChange={this.handleInputChange}
+                        onFocus={this.handleInputFocus}
+                      />
+                      <input 
+                        type="tel" 
+                        name="expiry" 
+                        placeholder="Valid Thru"
+                        onChange={this.handleInputChange}
+                        onFocus={this.handleInputFocus}
+                        />
+                        <input type="tel" name="cvc" placeholder="CVC" onChange={this.handleInputChange}
+                        onFocus={this.handleInputFocus}></input>
+                    </form>
+                  </div>
+           
           </div>
+          
         </div>
       )
-    }
-
-    
   }
 }
 
