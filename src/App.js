@@ -51,6 +51,7 @@ componentDidMount(){
     //getSFDCAccountDetails(sfdcAccountId);
     //create billing account? 
     this.getOrdwayAccount();
+    console.log('componet did mount ran')
   }
 
 //API Functions
@@ -59,6 +60,7 @@ getOrdwayAccount = () => {
   let {proxyUrl, headers} = this.state.ordwayAPI
   let url = 'https://app.ordwaylabs.com/api/v1/customers/' + this.state.ordwayId + '/verbose'
   let billingContactId;
+  console.log('we at least hit the get ordway account function')
   axios.get(proxyUrl + url, {headers}).then( res =>{
     this.setState({companyName: res.data.name, paymentLink: res.data.update_payment_method_url, billingContactId: res.data.billing_contact_id})
     billingContactId = res.data.billing_contact_id
@@ -231,6 +233,15 @@ handleInputChange = (e) => {
 
   render(){
     const {country, region, paymentType} = this.state
+
+    let option1;
+    let option2;
+    if(country === "United States"){
+      option1 = <option value={"Bank Account"}>Bank Account</option>;
+      option2 = <option value={"Credit Card"}>Credit Card</option>;
+    } else {
+      option1 = <option value={"Credit Card"}>Credit Card</option>;
+    }
 
     let paymentForm;
     let creditCardForm = <div className="PaymentForm" id="PaymentForm">
@@ -460,6 +471,12 @@ handleInputChange = (e) => {
             <p className="label">PAYMENT INFO</p>
 
             <div className="formcolumn">
+                <label htmlFor="paymentType">Payment Type</label>
+                <select value={this.state.value} onChange={(e) => this.handleChange('paymentType', e)} className="paymenttype" name="PaymentType" id="paymentType">
+                  {option1}
+                  {option2}
+                </select>
+            
               {paymentForm}
             </div>
            
