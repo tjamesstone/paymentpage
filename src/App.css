@@ -135,6 +135,7 @@ button:hover{
   margin-left: 1rem;
   align-items: center;
   justify-content: center;
+  width: 100%;
 }
 .creditcardinput{
   background: #f8f8f8;
@@ -156,7 +157,7 @@ button:hover{
   height: 2rem;
   font-family: 'Montserrat', sans-serif;
   font-size: .75rem;
-  width: 50%;
+  width: 100%;
 }
 
 .PaymentForm{

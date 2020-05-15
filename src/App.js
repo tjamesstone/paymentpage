@@ -40,10 +40,8 @@ export default class App extends Component {
       name: '',
       number: '',
       cardType: '',
-      bankAccountNumber: '',
-      routingNumber: '',
-      default: true
-    };
+      routingNumber: ''
+      };
   }
  
 
@@ -93,6 +91,8 @@ updateBillingInfo = () => {
   let {proxyUrl, headers} = this.state.ordwayAPI
   let billingContactURL = 'https://app.ordwaylabs.com/api/v1/customers/' +ordwayId + '/contacts/' + billingContactId
   let ordwayAccountURL = "https://app.ordwaylabs.com/api/v1/customers/" + ordwayId
+  let createBillingContactURL = 'https://app.ordwaylabs.com/api/v1/customers/' +ordwayId + '/contacts/'
+  let billingContactAddBody = {"customer_id": ordwayId,"display_name": firstName+lastName, "first_name": firstName, "last_name": lastName, "email": email, "state": region, "country": country, "city": city, "address1": address, "zip": postalCode, "accounting_email": accountingEmail}
   let billingContactUpdateBody = {"display_name": firstName+lastName, "first_name": firstName, "last_name": lastName, "email": email, "state": region, "country": country, "city": city, "address1": address, "zip": postalCode, "accounting_email": accountingEmail}
   let ordwayAccountUpdateBody = {"billing_contact_id": billingContactId, "name": companyName, "shipping_contact_id": billingContactId}
   
@@ -100,6 +100,17 @@ updateBillingInfo = () => {
   axios.put(proxyUrl+ordwayAccountURL, ordwayAccountUpdateBody, {headers}).then(res=>{
     res.status === 200 ? console.log('Update to Ordway Account complete') : console.log("Didn't update Ordway Account right")
     console.log(res.data)
+    if(billingContactId === ''){
+      //Add Billing Contact
+      axios.put(proxyUrl+createBillingContactURL, billingContactAddBody, {headers}).then(res=>{
+        res.status === 200 ? console.log('Billing Contact sucessfully added') : console.log("Didn't add billing contact right")
+        console.log("Ordway Contact Data:")
+        console.log(res.data)
+      })
+      .catch(function(error){
+        console.log('Didnt add primary billing contact:'+ error)
+      })
+    } else if (billingContactId !== ''){
     //Update Billing Contact
     axios.put(proxyUrl+billingContactURL, billingContactUpdateBody, {headers}).then(res=>{
       res.status === 200 ? console.log('Update to Billing Contact complete') : console.log("Didn't update billing account right")
@@ -109,10 +120,40 @@ updateBillingInfo = () => {
     .catch(function(error){
       console.log('Didnt set primary billing contact:'+ error)
     })
+  }
   })
   .catch(function(error){
     console.log('Didnt set primary billing contact:' + error)
   })
+}
+
+addPaymentInfo = () => {
+  let {paymentType, cardType, name, number, expiry, routingNumber, country, ordwayId} = this.state
+  let {proxyUrl, headers} = this.state.ordwayAPI
+  let addPaymentURL = "https://app.ordwaylabs.com/api/v1/customers/"+ ordwayId +"/payment_methods"
+  let creditCardBody = {"customer_id": ordwayId, "payment_type": paymentType, "type": cardType, "account_number": number, "account_holder_name": name, "country": country, "expiry": expiry, "default": true};
+  let bankAccountBody = {"customer_id": ordwayId, "payment_type": paymentType, "account_number": number, "account_holder_name": name, "country": country, "status": "Unverified","routing_number": routingNumber, "default": true};
+
+  if(paymentType === "Credit Card"){
+    axios.post(proxyUrl+addPaymentURL, creditCardBody, {headers}).then(res=>{
+      res.status === 200 ? console.log('Credit Card Added') : console.log("Didn't add credit card right")
+      console.log("Ordway Payment Data:")
+      console.log(res.data)
+    })
+    .catch(function(error){
+      console.log('Didnt add Credit Card:'+ error)
+    })
+  } else if(paymentType === "Bank Account"){
+    axios.post(proxyUrl+addPaymentURL, bankAccountBody, {headers}).then(res=>{
+      res.status === 200 ? console.log('Bank Account Added') : console.log("Didn't add bank account right")
+      console.log("Ordway Payment Data:")
+      console.log(res.data)
+    })
+    .catch(function(error){
+      console.log('Didnt add Bank Account:'+ error)
+    })
+  }
+
 }
 
 getSFDCAccountDetails = sfdcAccountId => {
@@ -316,7 +357,7 @@ handleInputChange = (e) => {
                             </div>
                             <form className="CreditCardForm">
                               <input
-                                className="creditcardinput"
+                                className="achinput"
                                 type="number"
                                 name="number"
                                 placeholder="Account Number"
@@ -324,7 +365,7 @@ handleInputChange = (e) => {
                                 onFocus={this.handleInputFocus}
                               />
                               <input
-                                className="creditcardinput"
+                                className="achinput"
                                 type="text"
                                 name="name"
                                 placeholder="Account Holder Name"
@@ -332,15 +373,15 @@ handleInputChange = (e) => {
                                 onFocus={this.handleInputFocus}
                               />
                               <input 
-                                className="creditcardinput"
+                                className="achinput"
                                 type="number" 
                                 name="routingNumber" 
-                                placeholder="routingNumber"
+                                placeholder="Routing Number"
                                 onChange={this.handleInputChange}
                                 onFocus={this.handleInputFocus}
                                 />
                                 <input 
-                                className="creditcardinput"
+                                className="achinput"
                                 type="number"
                                 name="routingNumber" 
                                 placeholder="Confirm Routing Number" 
