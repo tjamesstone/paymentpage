@@ -4,6 +4,7 @@ import { CountryDropdown, RegionDropdown } from "react-country-region-selector";
 import axios from "axios";
 import "react-credit-cards/es/styles-compiled.css";
 import Cards from "react-credit-cards";
+import Logo from './growlogoblack.svg'
 
 export default class App extends Component {
   //state
@@ -524,6 +525,7 @@ export default class App extends Component {
 
     return (
       <div className="App">
+        <img className='logoimage' src={Logo} alt="grow"/>
         <div className="forms">
           <div className="form">
             <p className="label">COMPANY INFO</p>

@@ -165,6 +165,10 @@ button:hover{
   flex-direction: row;
   margin: 1rem;
 }
+.logoimage{
+  margin: 1rem auto;
+  height: 10%;
+}
 
 input[type=number]::-webkit-inner-spin-button, 
 input[type=number]::-webkit-outer-spin-button { 
