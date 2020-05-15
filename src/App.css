@@ -86,6 +86,7 @@
   font-size: 1.4em;
 
 }
+
 select{
   padding: 0 auto;
   margin: 0 auto;
@@ -144,6 +145,18 @@ button:hover{
   height: 2rem;
   font-family: 'Montserrat', sans-serif;
   font-size: .75rem;
+}
+
+.achinput{
+  background: #f8f8f8;
+  border: 0;
+  outline: 0;
+  border-bottom: 2px solid black;
+  color: black;
+  height: 2rem;
+  font-family: 'Montserrat', sans-serif;
+  font-size: .75rem;
+  width: 50%;
 }
 
 .PaymentForm{

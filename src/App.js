@@ -39,9 +39,10 @@ export default class App extends Component {
       focus: '',
       name: '',
       number: '',
-      bankaccount: {
-
-      }
+      cardType: '',
+      bankAccountNumber: '',
+      routingNumber: '',
+      default: true
     };
   }
  
@@ -215,10 +216,11 @@ handleChange(key, e){
     })
 }
 
-//Card Functions
+//Payment Info Functions
 handleInputFocus = (e) => {
   this.setState({ focus: e.target.name });
 }
+
 
 handleInputChange = (e) => {
   const { name, value } = e.target;
@@ -248,7 +250,7 @@ handleInputChange = (e) => {
     let paymentForm;
     let paymentSelectionYesOrNo;
     let paymentTypeSelection = <div className="paymentselectorcontainor">
-                                  <label htmlFor="paymentType">Payment Type</label>
+                                  <label className="paymenttypelabel" htmlFor="paymentType">PaymentType</label>
                                   <select value={this.state.value} onChange={(e) => this.handleChange('paymentType', e)} className="paymenttype" name="PaymentType" id="paymentType">
                                   {option1}
                                   {option2}
@@ -332,15 +334,15 @@ handleInputChange = (e) => {
                               <input 
                                 className="creditcardinput"
                                 type="number" 
-                                name="routingnumber" 
-                                placeholder="Routing Number"
+                                name="routingNumber" 
+                                placeholder="routingNumber"
                                 onChange={this.handleInputChange}
                                 onFocus={this.handleInputFocus}
                                 />
                                 <input 
                                 className="creditcardinput"
                                 type="number"
-                                name="routingnumber" 
+                                name="routingNumber" 
                                 placeholder="Confirm Routing Number" 
                                 onChange={this.handleInputChange}
                                 onFocus={this.handleInputFocus}></input>
